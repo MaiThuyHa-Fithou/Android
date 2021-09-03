@@ -12,80 +12,80 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Mang chua cac ID của cac nut
+    // Mang chua cac ID của cac nut so
     private int[] numericButtons = {R.id.btnZero, R.id.btnOne, R.id.btnTwo, R.id.btnThree, R.id.btnFour, R.id.btnFive, R.id.btnSix, R.id.btnSeven, R.id.btnEight, R.id.btnNine};
-    // IDs of all the operator buttons
+    // Mang chua ID cac nut phep toan
     private int[] operatorButtons = {R.id.btnAdd, R.id.btnSubtract, R.id.btnMultiply, R.id.btnDivide};
-    // TextView used to display the output
+    // Textview hien thi ket qua
     private TextView txtScreen;
-    // Represent whether the lastly pressed key is numeric or not
+    // Kiem tra xem nut cuoi cung co phai la nut so khong
     private boolean lastNumeric;
-    // Represent that current state is in error or not
+    // kiem tra trang thai hien tai co loi hay khong
     private boolean stateError;
-    // If true, do not allow to add another DOT
+    // Neu dung thi khong cho phep them Dau Cham thap phan
     private boolean lastDot;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Find the TextView
+        // Gan dieu khien txtScreen voi doi tuong UI TextView
         this.txtScreen = (TextView) findViewById(R.id.txtScreen);
-        // Find and set OnClickListener to numeric buttons
+        // Tim va dat su kien OnClickListener cho cac nut so
         setNumericOnClickListener();
-        // Find and set OnClickListener to operator buttons, equal button and decimal point button
+        // Tim va dat su kien OnClickListener cho cac nut toan tu, nut dau bang va nut dau cham thap phan
         setOperatorOnClickListener();
     }
     /**
-     * Find and set OnClickListener to numeric buttons.
+     * Tim va dat su kien OnClickListener cho cac nut so
      */
     private void setNumericOnClickListener() {
-        // Create a common OnClickListener
+        // Tao mot xu ly su kien OnClickListener chung
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Just append/set the text of clicked button
+                //Noi va thiet lap nhan cua cac nut da click
                 Button button = (Button) v;
                 if (stateError) {
-                    // If current state is Error, replace the error message
+                    // Neu trang thai la loi, hien thi thong bao loi
                     txtScreen.setText(button.getText());
                     stateError = false;
                 } else {
-                    // If not, already there is a valid expression so append to it
+                    // Neu khong loi, thi them gia tri text cua nut do vao bieu thuc
                     txtScreen.append(button.getText());
                 }
-                // Set the flag
+                // Dat co kiem tra xem la nut so cuoi cung chua?
                 lastNumeric = true;
             }
         };
-        // Assign the listener to all the numeric buttons
+        // Set su kien OnClickListener cho tat ca cac nut so
         for (int id : numericButtons) {
             findViewById(id).setOnClickListener(listener);
         }
     }
 
     /**
-     * Find and set OnClickListener to operator buttons, equal button and decimal point button.
+     * Tim va dat su kien OnClickListener cho cac nut toan tu, nut dau bang va nut dau cham thap phan
      */
     private void setOperatorOnClickListener() {
-        // Create a common OnClickListener for operators
+        // Tao mot xu ly su kien OnClickListener chung cho cac toan tu
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // If the current state is Error do not append the operator
-                // If the last input is number only, append the operator
+                // Neu trang thai hien tai la Loi, khong noi toan tu
+                // Neu dau vao cuoi cung chi la so, hay them toan tu
                 if (lastNumeric && !stateError) {
                     Button button = (Button) v;
                     txtScreen.append(button.getText());
                     lastNumeric = false;
-                    lastDot = false;    // Reset the DOT flag
+                    lastDot = false;    //Dat lai co dau cham thap phan
                 }
             }
         };
-        // Assign the listener to all the operator buttons
+        // Set xu ly su kien OnClickListener cho tat ca cac nut toan tu
         for (int id : operatorButtons) {
             findViewById(id).setOnClickListener(listener);
         }
-        // Decimal point
+        // Dau cham thap phan
         findViewById(R.id.btnDot).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,18 +96,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        // Clear button
+        // Nut xoa
         findViewById(R.id.btnClear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                txtScreen.setText("");  // Clear the screen
-                // Reset all the states and flags
+                txtScreen.setText("");  // Xoa du lieu tren man hinh
+                // Dat lai tat ca cac trang thai va co
                 lastNumeric = false;
                 stateError = false;
                 lastDot = false;
             }
         });
-        // Equal button
+        // Nut dau bang
         findViewById(R.id.btnEqual).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,23 +117,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Logic to calculate the solution.
+     * Giai phap cho tinh toan don gian Calculator
      */
     private void onEqual() {
-        // If the current state is error, nothing to do.
-        // If the last input is a number only, solution can be found.
+        // Neu trang thai hien tai la loi, thi khong lam gi
+        // Neu dau vao cuoi cung chi la mot so, co the tim thay giai phap.
         if (lastNumeric && !stateError) {
-            // Read the expression
+            // Doc day bieu thuc
             String txt = txtScreen.getText().toString();
-            // Create an Expression (A class from exp4j library)
+            // Tao mot bieu thuc su dung lop Expression cua thu vien exp4j
+            // tham khao tai: https://www.objecthunter.net/exp4j/
+            //thu vien ho tro tinh toan tren bieu thuc
             Expression expression = new ExpressionBuilder(txt).build();
             try {
-                // Calculate the result and display
+                // Tinh toan va hien thi ket qua
                 double result = expression.evaluate();
                 txtScreen.setText(Double.toString(result));
-                lastDot = true; // Result contains a dot
+                lastDot = true; // Ket qua chua 1 dau cham thap phan
             } catch (ArithmeticException ex) {
-                // Display an error message
+                // Hien thi thong bao loi
                 txtScreen.setText("Error");
                 stateError = true;
                 lastNumeric = false;
